@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories("it.alecsandria.sviluppo.repos")
+@EnableJpaRepositories("it.alecsandria.pg.repositories")
 @PropertySource("classpath:database.properties")
 public class DataConfig {
 
