@@ -1,0 +1,23 @@
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException {
+		
+//		String redirectUrl = "https://clicks.trovaprezzi.it/go.aspx?offer=V0lZSkttbU0zNEtuS2NFbjBjRGxPSEg4Y3I2ditabGtuRW9jN25CVThZSVVRZHdGc0VlS1NhVU85TkZyWW5lSSs2UlhuZUNTYnk1OHdLRzllbDJoWkI2K0ZxUjVPUllLOExjVkJBdDJEaHZvcFd4WjlVUTFMVjZ4RWpLM3I3VDNxRTd3RHFLVEdTSFBnSzVHRkV1RE5yU0NRa2V2Z0xqb2o2K0tGNGNHcmJFeVFZZDZmNldmUDlyemlZK3IrOEhvSTRveFVlNGdtZ05MNTJCaUFlV1FlMjJxbmJkZHA4Ny9jOG5XbDBmUE1CMW4wVVE0L0p2bGNTRTJ3aVJiVGF1ZVZEOFNaRkpMdkNucGhoVlRnUDlabDAwa1pEYkVhYmtBUXNnSkVCNE5LSG1BQVUzY1hTRzZFSHRqNE8xUW9KaEhSNjMxU3hFU1NWY2pwYTB3M0I3TUZGbTJmL3hRaTJONDVVSzFpZEhlSHBTOENuR3puQW0vNjNJank1YUtmeWxDYzFxWHpubWt0QzVCN3NUbTVIcGRVaGdnVXlCbi9La084MXZIdmVkcjlFTGhvOGMvK1R1c1dCVjNxZUNrZmlZbmpzK3AwSGVEUU50ek1aNHYvTmgxU3lhSVdrcWRVS1pqTXgzRVhIQVZEVHp4b1JnallueXp5WXRFTDY1NUIrOTZtSkU0MGhLSXZXdFJINlEyMUpiM1Nlem1RbTVtY2ZrVlBabjNtL3l4N1RxM3B1WXJnTTV5T0Y5M1ZIMzBMdEpD0&sid=1c5acc13-c3ce-471e-a010-a689c650baab&impression=Vzl6eFN4eHZRNFR6eHNPUVlyQmdxV0Q2YXdVNVRKTVZpR3g4N0N4SjlXV0EwOHpNWW80eHE1dzlySVV3VSt3bzkrWEt2MFQ3bm1DM1AyeFpQMmljUEE9PQ2&callback=SUNVYmY5eW02MjJFcWhjUUJ6K0pWeG0zZEF6b1M4Ni94cC92OGpCK0JWR3pSa0RxSGhjclhBMmxOYmw1WmliaHk2Q29YeVlUcmo0dkt1cjVsdTJBYUoxMmFYelRNdkRQUEgxWTdUZVVyU2dZS1dOK1htbk9idz090";
+		String redirectUrl = "https://www.trovaprezzi.it/goto/353790466?impression=Vzl6eFN4eHZRNFR6eHNPUVlyQmdxV0Q2YXdVNVRKTVZpR3g4N0N4SjlXV1p4NUdnckJ0MGdnPT01&search=c3VjY28gZGkgYWxvZSBwdXJvIDEwMDBtbAkxNzI1&pos=2&nb_results=873";
+		HttpURLConnection httpConn = (HttpURLConnection) 
+				(new URL(redirectUrl)).openConnection();
+	
+		httpConn.setInstanceFollowRedirects(false);
+		httpConn.connect();
+		System.out.println(httpConn.getResponseCode());
+		
+		System.out.println(httpConn.getHeaderField("Location"));
+		System.out.println(httpConn.getHeaderFields());
+		
+	}
+	
+}

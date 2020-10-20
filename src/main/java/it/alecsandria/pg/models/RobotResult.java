@@ -1,22 +1,25 @@
 package it.alecsandria.pg.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RobotResult {
 
-	private String text;
-	private float price;
+	private String name;
+	private Object value;
 	
-	
-	public String getText() {
-		return text;
+	public String getName() {
+		return name;
 	}
-	public void setText(String text) {
-		this.text = text;
+	public void setName(String name) {
+		this.name = name;
 	}
-	public float getPrice() {
-		return price;
+	public Object getValue() {
+		return value;
 	}
-	public void setPrice(float price) {
-		this.price = price;
+	public void setValue(Object value) {
+
+		this.value = value;
 	}
 	
 }
