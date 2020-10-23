@@ -14,7 +14,7 @@ public class ExtractionResult {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
-	private int idPoduct;
+	private int idProduct;
 	private String pIvaDealer;
 	private String urlDealer;
 	private float foundedPrice;
@@ -29,10 +29,10 @@ public class ExtractionResult {
 		this.id = id;
 	}
 	public int getIdPoduct() {
-		return idPoduct;
+		return idProduct;
 	}
-	public void setIdPoduct(int idPoduct) {
-		this.idPoduct = idPoduct;
+	public void setIdPoduct(int idProduct) {
+		this.idProduct = idProduct;
 	}
 	public String getpIvaDealer() {
 		return pIvaDealer;

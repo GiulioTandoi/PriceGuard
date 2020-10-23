@@ -12,6 +12,7 @@ public interface PriceGuardService {
 	
 	public void executeGuardDuty();
 	public Wrapper robotCall(List<Product> products,String searchLabel, String urlRobotService);
-	public List<ExtractionResult> getPageDealerData(String eCommerceSiteName, Wrapper robotResultsWrapper) throws IOException ;
+	public List<ExtractionResult> extractResultData(String eCommerceSiteName, Wrapper robotResultsWrapper) throws IOException ;
+	public boolean insertExtractions(List<ExtractionResult> extractionsResults);
 
 }

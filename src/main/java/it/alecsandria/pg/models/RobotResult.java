@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class RobotResult {
 
 	private String name;
-	private Object value;
+	private Object value;	
 	
 	public String getName() {
 		return name;

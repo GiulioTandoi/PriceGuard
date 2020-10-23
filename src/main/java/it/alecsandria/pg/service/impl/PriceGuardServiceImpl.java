@@ -1,8 +1,7 @@
 package it.alecsandria.pg.service.impl;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,6 +30,7 @@ import it.alecsandria.pg.entities.Site;
 import it.alecsandria.pg.models.RobotResult;
 import it.alecsandria.pg.models.Wrapper;
 import it.alecsandria.pg.models.WrapperAttributes;
+import it.alecsandria.pg.repositories.ExtractionResultRepository;
 import it.alecsandria.pg.repositories.ProductRepository;
 import it.alecsandria.pg.repositories.SellerRepository;
 import it.alecsandria.pg.repositories.Seller_SitesRepository;
@@ -47,6 +47,9 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 
 	@Autowired
 	ProductRepository productRepo;
+	
+	@Autowired
+	ExtractionResultRepository extractionResultsRepo;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private List<Seller> sellers = new ArrayList<Seller>();
@@ -54,7 +57,7 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 	private List<Product> sellerProducts = new ArrayList<Product>();
 
 	@Override
-	@Scheduled(cron = "0/2 * * ? * *")
+	@Scheduled(cron = "0/5 * * ? * *")
 	public void executeGuardDuty() {
 
 		try {
@@ -94,7 +97,9 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 					// Retrieve data from dealer page
 					try {
 						logger.info(" --------- Scraping dealers pages for each product ---------");
-						List<ExtractionResult> extractionresults = getPageDealerData(site.getName(), robotResultsWrapper);
+						List<ExtractionResult> extractionresults = extractResultData(site.getName(), robotResultsWrapper);
+						System.out.println(extractionresults.get(0).getpIvaDealer());
+						insertExtractions(extractionresults);
 						logger.info(" --------- RETRIEVED data from dealers pages all products ---------");
 					} catch (IOException ie) {
 						logger.error("Error reteving data from dealer page ----->> " + ie.getMessage());
@@ -119,7 +124,7 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 
 		for (Product product : products) {
 
-			if (product.getId() == 72) {
+			if (product.getId() == 74) {
 
 				json = "{\"parameters\":[{\"variableName\":\"input\",\"attribute\":[{\"type\":\"text\",\"name\":\"prodotto\",\"value\":\""
 						+ product.getDescription() + "\"}]}]}";
@@ -150,13 +155,11 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 	}
 
 	@Override
-	public List<ExtractionResult> getPageDealerData(String eCommerceSiteName, Wrapper robotResultsWrapper)
+	public List<ExtractionResult> extractResultData(String eCommerceSiteName, Wrapper robotResultsWrapper)
 			throws IOException {
 
 		List<ExtractionResult> extractionResults = new ArrayList<ExtractionResult>();
 		ExtractionResult extraction = new ExtractionResult();
-		String redirectLink;
-		String dealerPageLink = "";
 		String pIvaRegex = "\\D([0-9]{11})\\D";
 		Pattern pattern = Pattern.compile(pIvaRegex);
 		Matcher matcher;
@@ -165,43 +168,16 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 		
 			// RobotResult representes an item extracted for that product (e.g. prezzo or link of the single product ads) 
 			for (RobotResult result : productAttributes.getAttribute()) {
-
-				extraction = new ExtractionResult();
+				
 				extraction.setIdPoduct(robotResultsWrapper.getIdProduct());
 				
-				if (result.getName().equals("link")) {
+				if (result.getName().equals("html")) {
 
-					redirectLink = "https://www." + eCommerceSiteName + (String) result.getValue();
-					URL redirectUrl = new URL(redirectLink);
-					HttpURLConnection httpConn;
-					try{
-						
-						// this block Take redirected url contained in Location tag in the http header and fire the new url 
-						httpConn = (HttpURLConnection) redirectUrl.openConnection();
-						httpConn.setInstanceFollowRedirects(false);
-						httpConn.connect();
-						System.out.println(httpConn.getRequestMethod());
-						System.out.println(httpConn.getResponseCode());
-						httpConn.getResponseCode();
-						dealerPageLink = httpConn.getHeaderField("Location").toString();
-						
-						System.out.println(httpConn.getHeaderFields());
-						System.out.println(httpConn.getURL());
-						extraction.setUrlDealer(dealerPageLink);
-						System.out.println(dealerPageLink);
-
-					}catch (Exception e) {
-						logger.error("Error redirecting to dealer page, link: " + redirectLink + " ------ >>" + e.getMessage());
-					}
-					
-					Document htmlDealerPage = Jsoup.connect(dealerPageLink).get();
-					Elements body = htmlDealerPage.getElementsByTag("body");
-					
-					matcher = pattern.matcher(body.text());
+					matcher = pattern.matcher( (String) result.getValue());
 
 					while (matcher.find()) {
 
-						extraction.setpIvaDealer(matcher.group());
+						extraction.setpIvaDealer(matcher.group().replaceAll("\\D+", ""));
 						System.out.println("Found pIva ------ >>" + extraction.getpIvaDealer());
 					}
 
@@ -210,14 +186,35 @@ public class PriceGuardServiceImpl implements PriceGuardService {
 					extraction.setFoundedPrice(Float.parseFloat((String) result.getValue()));
 					System.out.println("Found price ------ >> " + extraction.getFoundedPrice());
 				}
-
+				
+				
 			}
+			
+			extractionResults.add(extraction);
 			
 		}
 
-		extractionResults.add(extraction);
-
 		return extractionResults;
 	}
+	
+	@Override
+	public boolean insertExtractions ( List<ExtractionResult> extractionResults ) {
+		
+		logger.info("--------- Begin insert results ---------");
+		for (ExtractionResult result:  extractionResults) {
+			try {
+				result.setUrlDealer("https://www.ebay.it/itm/Zuccari-Super-Ananas-Slim-Integratore-Drenaggio-Dei-Liquidi-25-bustine-da-10ml/124189255508?hash=item1cea41a754:g:oS4AAOSwCplfMZQa");
+				extractionResultsRepo.save(result);
+			}catch (Exception e) {
+				logger.error("Error during insert extractions " + e.getMessage());
+				return false;
+			}
+			
+		}
+		logger.info("--------- End insert results ---------");
+		
+		return true ;
+	}
+	
 
 }

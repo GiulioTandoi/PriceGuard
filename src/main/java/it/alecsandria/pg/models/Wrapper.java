@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Wrapper {
 
 	private List<WrapperAttributes> values;
-
+	
 	public List<WrapperAttributes> getValues() {
 		return values;
 	}
